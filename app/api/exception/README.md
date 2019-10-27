@@ -1,0 +1,1 @@
+# Diretório que contém classes de exceções.

@@ -1,0 +1,1 @@
+# Diretório que contém os arquivos de configurações para variáveis de ambientes.

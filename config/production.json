@@ -1,0 +1,16 @@
+{
+    "ENV": "production",
+    "SERVER": {
+        "PORT": 8041
+    },
+    "HOST": "localhost",
+    "DB": {
+        "MSSQL": {
+            "HOST": "infosistemas.no-ip.info",
+            "PORT": 51581,
+            "USER": "sa",
+            "PASSWORD": "Inf0@1116",
+            "DB": "Topaz"
+        }
+    }
+}

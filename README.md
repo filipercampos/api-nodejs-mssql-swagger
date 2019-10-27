@@ -1,2 +1,2 @@
-# base-api
-Base API Nodejs
+# APP 
+API %name%

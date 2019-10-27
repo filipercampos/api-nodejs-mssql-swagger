@@ -1,0 +1,1 @@
+# Diretório que contém a documentação da API.

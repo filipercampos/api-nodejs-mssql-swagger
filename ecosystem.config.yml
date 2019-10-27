@@ -1,0 +1,7 @@
+apps:
+- name: BaseAPI 
+  script: "./server.js"
+  instance_var: 'INSTANCE_ID'
+  max_memory_restart: 200M
+  env:
+    NODE_ENV: production

@@ -1,0 +1,1 @@
+# Diretório que contém arquivos auxiliares aos métodos http da api.
