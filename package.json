@@ -23,6 +23,7 @@
     "moment": "^2.24.0",
     "mssql": "^5.0.4",
     "nodemon": "^1.19.1",
+    "pluralize": "^8.0.0",
     "swagger-tools": "^0.10.4",
     "swagger-ui-express": "^4.0.2",
     "typescript": "^3.6.4",

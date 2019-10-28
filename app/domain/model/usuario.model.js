@@ -5,25 +5,19 @@ const DateUtil = require('../utils/date.util');
 module.exports = {
     dto: (entity) => {
         return {
-            id: entity.UsuarioID,
-            nome: entity.Nome,
+            id: entity.CodigoUsuario,
+            nome: entity.NomeUsuario,
             cpf: entity.CPF,
             dataNascimento: DateUtil.getTimestamp(entity.DataNascimento),
             email: entity.Email,
-            celular: entity.Celular,
-            senha: entity.Senha,
-            dataPrimeiraHabilitacao: DateUtil.getTimestamp(entity.DataPrimeiraHabilitacao),
-            numeroCNH: entity.NumeroCNH,
-            validadeCNH: DateUtil.getTimestamp(entity.ValidadeCNH),
-            categoriaCNH: entity.CategoriaCNH,
-            cep: entity.CEP,
+            telefone: entity.Telefone1,
             cidade: entity.Cidade,
-            uf: entity.UF,
+            uf: entity.Estado,
             logradouro: entity.Logradouro,
             complemento: entity.Complemento,
             inseridoEm: DateUtil.getTimestamp(entity.InseridoEm),
-            contasBancarias: [],
-            veiculo: null,
+            grupoUsuarioId: entity.CodigoGrupoUsuario,
+            valorMaxAprovacao: parseFloat(entity.ValorMaxAprovacao)
             //TODO links
         }
     }

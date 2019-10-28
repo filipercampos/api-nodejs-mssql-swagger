@@ -1,11 +1,11 @@
-const StringUtils = require("../../domain/utils/string.util");
+const DefaultErrorMessage = require("../../domain/utils/string.util");
 
 'use strict';
 
 class NotFoundException {
     /** Construtor */
   constructor(message){ 
-    this.message = message || StringUtils.error_exception_message_default;
+    this.message = message || DefaultErrorMessage.error_exception_message_default;
   } 
 }
 
