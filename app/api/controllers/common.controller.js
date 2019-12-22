@@ -2,9 +2,9 @@
 
 const Response = require('../helpers/httpResponse');
 const HttpStatusCode = require('../helpers/httpStatusCode');
-const ErroException = require('../exception/httpError.exception');
-const ConflictException = require('../exception/conflict.exception');
-const ProcedureException = require('../exception/procedure.exception');
+const ErroException = require('../exceptions/httpError.exception');
+const ConflictException = require('../exceptions/conflict.exception');
+const ProcedureException = require('../exceptions/procedure.exception');
 
 /**
  * Request service HTTP route

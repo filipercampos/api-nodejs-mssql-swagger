@@ -2,11 +2,11 @@
 
 const Response = require('../helpers/httpResponse');
 const HttpStatusCode = require('../helpers/httpStatusCode');
-const HttpException = require('../exception/httpError.exception');
-const AuthenticationException = require('../exception/authentication.exception');
+const HttpException = require('../exceptions/httpError.exception');
+const AuthenticationException = require('../exceptions/authentication.exception');
 
 const CommonController = require('./common.controller');
-const UsuarioService = require('../../domain/service/usuario.service');
+const UsuarioService = require('../../domain/services/usuario.service');
 
 class UsuarioController extends CommonController {
   constructor() {

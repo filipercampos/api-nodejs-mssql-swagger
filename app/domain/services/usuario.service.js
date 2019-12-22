@@ -1,16 +1,16 @@
 'use strict';
 const CommonService = require('./common.service');
-const UsuarioModel = require('../model/usuario.model');
+const UsuarioModel = require('../models/usuario.model');
 
 const mssql = require('mssql');
 const MssqlFactory = require('../persistence/mssql');
 const { Contract } = require('../persistence/contract');
-const ErrorException = require('../../api/exception/exception');
-const ProcedureException = require('../../api/exception/procedure.exception');
+const ErrorException = require('../../api/exceptions/exception');
+const ProcedureException = require('../../api/exceptions/procedure.exception');
 
 //Authentication
 const Auth = require('../../api/helpers/auth');
-const AuthenticationException = require('../../api/exception/authentication.exception');
+const AuthenticationException = require('../../api/exceptions/authentication.exception');
 
 module.exports = class UsuarioService extends CommonService {
 
@@ -20,7 +20,6 @@ module.exports = class UsuarioService extends CommonService {
       Contract.spUsuarioGet,
       'pUsuarioID'
     );
-
   }
 
   //Implementação especifica

@@ -2,10 +2,10 @@
 
 const mssql = require('mssql');
 const MssqlFactory = require('../persistence/mssql');
-const ProcedureException = require('../../api/exception/procedure.exception');
+const ProcedureException = require('../../api/exceptions/procedure.exception');
 const CommonProcedure = require('../persistence/common.procedure');
+const ConflictException = require('../../api/exceptions/conflict.exception');
 const _ = require('lodash');
-const ConflictException = require('../../api/exception/conflict.exception');
 
 /**
  * Business Layer 

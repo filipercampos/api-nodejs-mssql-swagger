@@ -37,7 +37,7 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     // }));
 
     // Route validated requests to appropriate controller
-    app.use(middleware.swaggerRouter({ controllers: path.join(__dirname, '../api/controller'), useStubs: false }));
+    app.use(middleware.swaggerRouter({ controllers: path.join(__dirname, '../api/controllers'), useStubs: false }));
 
     // Serve the Swagger documents and Swagger UI
     app.use(middleware.swaggerUi());

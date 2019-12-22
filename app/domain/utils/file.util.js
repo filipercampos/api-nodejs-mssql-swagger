@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('fs');
-const ErroException = require('../../api/exception/http.error.exception');
+const ErroException = require('../../api/exceptions/http.error.exception');
 
 
 exports.existsPath = function(path) {
