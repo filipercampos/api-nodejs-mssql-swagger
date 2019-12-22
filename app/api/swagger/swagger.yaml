@@ -71,6 +71,12 @@ paths:
         name: linhasPagina
         type: integer
         format: int32 
+      - in: query
+        name: ids
+        type: array
+        items:
+          type: integer
+          format: int64
       responses:
         "200":
           description: success

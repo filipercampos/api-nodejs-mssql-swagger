@@ -5,7 +5,7 @@ const stringUtil = require('../../domain/utils/string.util');
 const numberUtil = require('../../domain/utils/number.util');
 const pluralize = require('pluralize');
 
-class SwaggerHelper {
+module.exports = class SwaggerHelper {
 
   /**
    * Build swagger's properties response
@@ -111,5 +111,3 @@ class SwaggerHelper {
     fs.writeFileSync(__dirname + '/swagger.yaml', stringData, (err) => { if (err) throw err; })
   }
 }
-
-module.exports = SwaggerHelper;

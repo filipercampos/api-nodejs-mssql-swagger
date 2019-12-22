@@ -4,8 +4,7 @@ const mssql = require('mssql');
 const MssqlFactory = require('../persistence/mssql');
 const ProcedureException = require('../../api/exception/procedure.exception');
 const CommonProcedure = require('../persistence/common.procedure');
-const DateUtil = require('../utils/date.util');
-
+const _ = require('lodash');
 const ConflictException = require('../../api/exception/conflict.exception');
 
 /**
@@ -13,10 +12,10 @@ const ConflictException = require('../../api/exception/conflict.exception');
  * 
  * Direct communication with repository layer
  * 
- * Camada de negócio: Faz a requisição e renderiza o retorno do banco de dados
+ * Camada de serviço: Faz a requisição e renderiza o retorno do banco de dados
  * 
  */
-module.exports = class CommonBO {
+module.exports = class CommonService {
 
     constructor(model, spGetName, keyParam) {
         this._model = model;
@@ -37,14 +36,23 @@ module.exports = class CommonBO {
         try {
             let conn = await MssqlFactory;
             let result = await conn.request()
-                .input(this._spGet.key, mssql.Int, id)
+                .input(this._spGet.key, mssql.Int, this._toParamValue(id))
                 .execute(this._spGet.name);
 
-            let record = typeof result.recordset[0] !== 'undefined'
+            let record = result != null && _.isArray(result.recordset)
                 ? result.recordset[0]
                 : null;
 
-            return record !== null ? this._model.dto(record) : record;
+            if (record != null) {
+                if (this._model != null) {
+                    return this._model.dto(record);
+                }
+                else {
+                    return record;
+                }
+            }
+
+            return record;
 
         } catch (err) {
             throw new ProcedureException(this._spGet.name, err.message);
@@ -60,12 +68,12 @@ module.exports = class CommonBO {
         try {
             let conn = await MssqlFactory;
             let result = await conn.request()
-                .input(this._spGet.key, mssql.Int, id)
+                .input(this._spGet.key, mssql.Int, this._toParamValue(id))
                 .execute(this._spGet.name);
 
             var r = this.getRowsAffected(result);
 
-            return this.removeResponse(r);
+            return this.responseRemove(r);
 
         } catch (err) {
             throw new ProcedureException(this._spGet.name, err.message);
@@ -82,11 +90,18 @@ module.exports = class CommonBO {
             let result = await conn.request()
                 .execute(name);
 
-            let results = result.recordset;
-            let resultsResponse = results.map(item => {
-                return this._model.dto(item)
-            });
+            let results = _.isArray(result.recordset) ? result.recordset : [];
 
+            let resultsResponse = null;
+
+            if (this._model != null) {
+                resultsResponse = results.map(item => {
+                    return this._model.dto(item)
+                });
+            }
+            else {
+                resultsResponse = results;
+            }
             return this.getResponsePagination(
                 results,
                 resultsResponse,
@@ -103,16 +118,23 @@ module.exports = class CommonBO {
      * Response for recordset
      * @param {Recordset} Data
      */
-    async findResponse(results) {
-        let resultsResponse = results.map(item => {
-            return this._model.dto(item)
-        });
+    async findResponse(results, pageIndex, rowsPerPage) {
+        let resultsResponse = null;
+
+        if (this._model != null) {
+            resultsResponse = results.map(item => {
+                return this._model.dto(item)
+            });
+        }
+        else {
+            resultsResponse = results;
+        }
 
         return this.getResponsePagination(
             results,
             resultsResponse,
-            procedure.pageIndex,
-            procedure.rowsPerPage
+            pageIndex,
+            rowsPerPage
         );
     }
 
@@ -120,7 +142,7 @@ module.exports = class CommonBO {
      * Response for Save      
      * @param {body} payload 
      */
-    async saveResponse(result) {
+    async responseSave(result) {
 
         if (!result)
             throw new ConflictException(`Ocorreu um erro ao salvar os dados`)
@@ -136,7 +158,7 @@ module.exports = class CommonBO {
      * @param {PK da tabela} id 
      * @param {Procedure params} payload 
      */
-    async updateResponse(result) {
+    async responseUpdate(result) {
 
         if (!result)
             throw new ConflictException(`Ocorreu um erro ao atualizar os dados`)
@@ -151,7 +173,7 @@ module.exports = class CommonBO {
     /**
      * Response for Update
      */
-    async patchResponse(result) {
+    async responsePatch(result) {
 
         if (!result)
             throw new ConflictException(`Ocorreu um erro ao atualizar os dados`)
@@ -167,7 +189,7 @@ module.exports = class CommonBO {
      * Response for Remove
      * @param {PK da tabela} id 
      */
-    async removeResponse(result) {
+    async responseRemove(result) {
 
         if (!result)
             throw new ConflictException(`Ocorreu um erro ao remover o registro`)
@@ -184,7 +206,7 @@ module.exports = class CommonBO {
      * @param {PK da tabela} id 
      * @param {Parametros da procedure} payload 
      */
-    async deleteResponse(result) {
+    async responseDelete(result) {
 
         if (!result)
             throw new ConflictException(`Ocorreu um erro ao remover o registro`)
@@ -202,7 +224,7 @@ module.exports = class CommonBO {
      */
     getRowsAffected(result) {
         try {
-            if (typeof result === 'undefined') {
+            if (_.isNil(result)) {
                 throw new ProcedureException('Procedure execute fail. Result is undefined');
             }
 
@@ -226,7 +248,7 @@ module.exports = class CommonBO {
      * @param {Resultado da procedure} results 
      * @param {Response} response 
      */
-    getResponsePagination(results, resultsResponse, numeroPagina, linhasPagina) {
+    getResponsePagination(results, resultsResponse, index, rowsCount) {
 
         const totalPagina = (results.length > 0 && results[0].TotalPagina)
             ? results[0].TotalPagina
@@ -234,13 +256,13 @@ module.exports = class CommonBO {
 
         let totalRows = null;
 
-        if (totalPagina !== null && linhasPagina !== null) {
-            totalRows = totalPagina * linhasPagina;
+        if (totalPagina !== null && rowsCount !== null) {
+            totalRows = totalPagina * rowsCount;
         }
 
         return {
-            pageIndex: numeroPagina,
-            rowsPerPage: linhasPagina,
+            pageIndex: index,
+            rowsPerPage: rowsCount,
             totalRows: totalRows,
             totalPages: Math.ceil(totalPagina),
             results: resultsResponse
@@ -255,19 +277,19 @@ module.exports = class CommonBO {
      * @param {Total pages} numeroPagina 
      * @param {Row per page} linhasPagina 
      */
-    getResultPaginationProcedure(records, numeroPagina, linhasPagina) {
+    getResultPaginationProcedure(records, index, rowsCount) {
 
         let resultsResponse = records.map(item => {
             return this._model.dto(item)
         });
         let totalPages = records.length > 0 ? records[0].TotalPagina : null;
         let totalRows = null;
-        if (totalPages !== null && linhasPagina !== null) {
-            totalRows = totalPages * linhasPagina;
+        if (totalPages !== null && rowsCount !== null) {
+            totalRows = totalPages * rowsCount;
         }
         let result = {
-            pageIndex: numeroPagina,
-            rowsPerPage: linhasPagina,
+            pageIndex: index,
+            rowsPerPage: rowsCount,
             totalRows: totalRows,
             totalPages: totalPages,
             results: resultsResponse
@@ -282,16 +304,8 @@ module.exports = class CommonBO {
      * @param {Pagination parameters } params 
      */
     validatePagination(params) {
-        params.numeroPagina = params.numeroPagina === undefined ? null : params.numeroPagina;
-        params.linhasPagina = params.linhasPagina === undefined ? null : params.linhasPagina;
-    }
-
-    /**
-     * Get datetime from timespan
-     * @param { Timespan } timespan 
-     */
-    getDate(timespan) {
-        return DateUtil.getDate(timespan);
+        params.numeroPagina = _.isNil(params.numeroPagina.value) ? null : params.numeroPagina.value;
+        params.linhasPagina = _.isNil(params.linhasPagina.value) ? null : params.linhasPagina.value;
     }
 
     /**
@@ -300,17 +314,39 @@ module.exports = class CommonBO {
      * @param {Table type int} ids 
      */
     createTableParameters(ids) {
-        if (ids == 'undefined' || !Array.isArray(ids)) {
-            throw new ProcedureException("Tabela de parametros inválida");
+
+        if (_.isNil(ids) || !_.isArray(ids.value)) {
+            throw new ProcedureException("Array de parametros 'ids' inválida");
         }
         let tvp = new mssql.Table();
 
         //estrutura da tabela genérica
         tvp.columns.add('Codigo', mssql.Int);
 
-        ids.forEach(item => {
-            tvp.rows.add(item.id);
+        ids.value.forEach(item => {
+            tvp.rows.add(item);
         });
         return tvp;
+    }
+
+    /**
+     * Get simple value from objet or .value
+     * Check object is null or undefined
+
+     * @param {Object to be verified} o 
+     */
+    _toParamValue(o) {
+
+        if (_.isNil(o)) {
+            return null;
+        }
+        else if (_.isNil(o.value)) {
+            if (!_.isNil()) {
+                return o;
+            }
+            return null;
+        } else {
+            return o.value;
+        }
     }
 }

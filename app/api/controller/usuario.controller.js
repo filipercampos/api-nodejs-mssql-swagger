@@ -5,12 +5,12 @@ const HttpStatusCode = require('../helpers/httpStatusCode');
 const HttpException = require('../exception/httpError.exception');
 const AuthenticationException = require('../exception/authentication.exception');
 
-const CommonService = require('./common.service');
-const UsuarioBO = require('../../domain/business/usuario.bo');
+const CommonController = require('./common.controller');
+const UsuarioService = require('../../domain/service/usuario.service');
 
-class UsuarioController extends CommonService {
+class UsuarioController extends CommonController {
   constructor() {
-    super(new UsuarioBO());
+    super(new UsuarioService());
   }
 
   async authentication(req, res) {
@@ -19,7 +19,7 @@ class UsuarioController extends CommonService {
       var body = req.body;
       var auth = body.auth;
 
-      let result = await this._business.login(body, auth);
+      let result = await this._service.login(body, auth);
       res.status(HttpStatusCode.OK).send(result);
 
     } catch (err) {
@@ -40,31 +40,31 @@ class UsuarioController extends CommonService {
  * Realiza o login e retorna um token
  */
 module.exports.postLogin = function (req, res) {
-  const service = new UsuarioController();
-  service.authentication(req, res);
+  const controller = new UsuarioController();
+  controller.authentication(req, res);
 }
 
 module.exports.getUsuario = function (req, res) {
-  const service = new UsuarioController();
-  service.getById(req, res);
+  const controller = new UsuarioController();
+  controller.getById(req, res);
 }
 
 module.exports.getUsuarios = function (req, res) {
-  const service = new UsuarioController();
-  service.get(req, res);
+  const controller = new UsuarioController();
+  controller.get(req, res);
 }
 
 module.exports.postUsuario = function (req, res) {
-  const service = new UsuarioController();
-  service.post(req, res);
+  const controller = new UsuarioController();
+  controller.post(req, res);
 }
 
 module.exports.putUsuario = function (req, res) {
-  const service = new UsuarioController();
-  service.update(req, res);
+  const controller = new UsuarioController();
+  controller.update(req, res);
 }
 
 module.exports.patchUsuario = function (req, res) {
-  const service = new UsuarioController();
-  service.patch(req, res);
+  const controller = new UsuarioController();
+  controller.patch(req, res);
 }

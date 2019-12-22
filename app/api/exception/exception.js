@@ -1,9 +1,7 @@
 'use strict';
 
-class Exception {
+module.exports = class Exception {
     constructor(message) {
         this.message = message;
     }
 }
-
-module.exports = Exception;

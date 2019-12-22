@@ -1,5 +1,5 @@
 'use strict';
-const CommomBO = require('./common.bo');
+const CommonService = require('./common.service');
 const UsuarioModel = require('../model/usuario.model');
 
 const mssql = require('mssql');
@@ -12,13 +12,13 @@ const ProcedureException = require('../../api/exception/procedure.exception');
 const Auth = require('../../api/helpers/auth');
 const AuthenticationException = require('../../api/exception/authentication.exception');
 
-module.exports = class UsuarioBO extends CommomBO {
+module.exports = class UsuarioService extends CommonService {
 
   constructor() {
     super(
       UsuarioModel,
       Contract.spUsuarioGet,
-      'pCodigoUsuario'
+      'pUsuarioID'
     );
 
   }
@@ -70,21 +70,23 @@ module.exports = class UsuarioBO extends CommomBO {
 
     try {
 
-      this.validatePagination(params);
-      
       //Table type use
-      // let tvpRegionais = this.createTableParameters(params.regionaisId);
+      // let myTvp = this.createTableParameters(params.ids);
+
+      this.validatePagination(params);
 
       let conn = await MssqlFactory;
       let result = await conn.request()
-        .input('pUsuarioID', mssql.Int, params.id)
-        .input('pNome', mssql.VarChar(200), params.nome)
-        .input('pEmail', mssql.NVarChar(400), params.email)
+        .input('pUsuarioID', mssql.Int, this._toParamValue(params.id))
+        .input('pNome', mssql.VarChar(200), this._toParamValue(params.nome))
+        .input('pCPF', mssql.VarChar(20), this._toParamValue(params.cpf))
+        .input('pEmail', mssql.NVarChar(400), this._toParamValue(params.email))
         .input('pNumeroPagina', mssql.Int, params.numeroPagina)
         .input('pLinhasPagina', mssql.Int, params.linhasPagina)
-        // .input('pCodigos', tvpRegionais)
+        // .input('pCodigos', myTvp)
         .execute(this._spGet.name);
-      return super.findResponse(result.recordset);
+
+      return super.findResponse(result.recordset, params.numeroPagina, params.linhasPagina);
     }
     catch (err) {
       throw new ProcedureException(this._spGet.name, err.message);
@@ -105,7 +107,6 @@ module.exports = class UsuarioBO extends CommomBO {
         .input('pEmail', mssql.NVarChar(200), params.email)
         .input('pSenha', mssql.NVarChar(400), params.senha)
         .input('pUsuarioId', mssql.Int, params.usuarioId)
-        .input('pInseridoEm', mssql.DateTime, this.getDate(params.inseridoEm))
       return this.getRowsAffected(result);
     }
     catch (err) {

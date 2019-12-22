@@ -1,6 +1,6 @@
 'use strict';
 
-class ObjectUtil {
+module.exports = class ObjectUtil {
     constructor() { }
 
     static isEmpty(obj) {
@@ -52,8 +52,5 @@ class ObjectUtil {
     static isNumber(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }
-
     
 }
-
-module.exports = ObjectUtil;

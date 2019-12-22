@@ -9,11 +9,11 @@ const ProcedureException = require('../exception/procedure.exception');
 /**
  * Request service HTTP route
  */
-module.exports = class CommonService {
+module.exports = class CommonController {
 
-    constructor(business) {
+    constructor(service) {
         //initialize business object
-        this._business = business;
+        this._service = service;
         this._response = Response;
         this._httpStatusCode = HttpStatusCode;
     }
@@ -21,7 +21,7 @@ module.exports = class CommonService {
     async get(req, res) {
         try {
             let params = req.swagger.params;
-            let result = await this._business.find(params);
+            let result = await this._service.find(params);
             if (result.results === null) {
                 result.results = [];
             }
@@ -38,7 +38,7 @@ module.exports = class CommonService {
 
     async getAll(req, res) {
         try {
-            let result = await this._business.findAll();
+            let result = await this._service.findAll();
             if (result.results === null) {
                 result.results = [];
             }
@@ -55,7 +55,7 @@ module.exports = class CommonService {
     async getById(req, res) {
         try {
             let id = req.swagger.params.id.value;
-            let result = await this._business.findById(id);
+            let result = await this._service.findById(id);
             if (result === null) {
                 result = {};
             }
@@ -72,7 +72,7 @@ module.exports = class CommonService {
 
     async post(req, res) {
         try {
-            let result = await this._business.save(req.body);
+            let result = await this._service.save(req.body);
             Response.responseAPI.success(res, result, HttpStatusCode.CREATED);
         }
         catch (err) {
@@ -92,7 +92,7 @@ module.exports = class CommonService {
         try {
             let id = req.swagger.params.id.value;
             let body = req.body;
-            let result = await this._business.update(id, body);
+            let result = await this._service.update(id, body);
             Response.responseAPI.success(res, result, HttpStatusCode.OK);
         }
         catch (err) {
@@ -108,7 +108,7 @@ module.exports = class CommonService {
         try {
             let id = req.swagger.params.id.value;
             let body = req.body;
-            let result = await this._business.patch(id, body);
+            let result = await this._service.patch(id, body);
             Response.responseAPI.success(res, result, HttpStatusCode.OK);
         }
         catch (err) {
@@ -123,7 +123,7 @@ module.exports = class CommonService {
     async remove(req, res) {
         try {
             let id = req.swagger.params.id.value;
-            let result = await this._business.remove(id);
+            let result = await this._service.remove(id);
             Response.responseAPI.success(res, result, HttpStatusCode.OK);
         }
         catch (err) {
@@ -139,7 +139,7 @@ module.exports = class CommonService {
         try {
             let id = req.swagger.params.id.value;
             let body = req.body;
-            let result = await this._business.delete(id, body);
+            let result = await this._service.delete(id, body);
             Response.responseAPI.success(res, result, HttpStatusCode.OK);
         }
         catch (err) {

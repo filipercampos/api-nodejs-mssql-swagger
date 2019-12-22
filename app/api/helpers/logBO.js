@@ -1,6 +1,6 @@
 'use strict';
 
-class LogBO {
+module.exports = class LogBO {
     constructor() { }
 
     async register(error) {
@@ -12,5 +12,3 @@ class LogBO {
         }
     }
 }
-
-module.exports = LogBO;

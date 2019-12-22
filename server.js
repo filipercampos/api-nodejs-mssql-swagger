@@ -8,5 +8,5 @@ const server = http.createServer(middlewares);
 process.setMaxListeners(0);
 
 server.listen(config.get('SERVER').PORT, function() {
-    console.log(`API running on port ${config.get('SERVER').PORT}, enviroment: ${config.get('ENV')}, db: ${config.DB.MSSQL.DB}`);
+    console.warn(`API running on port ${config.get('SERVER').PORT}, enviroment: ${config.get('ENV')}, db: ${config.DB.MSSQL.DB}`);
 });
