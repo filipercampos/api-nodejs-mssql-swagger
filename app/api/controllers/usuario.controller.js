@@ -1,39 +1,38 @@
 'use strict';
 
-const Response = require('../helpers/httpResponse');
 const HttpStatusCode = require('../helpers/httpStatusCode');
-const HttpException = require('../exceptions/httpError.exception');
-const AuthenticationException = require('../exceptions/authentication.exception');
 
 const CommonController = require('./common.controller');
 const UsuarioService = require('../../domain/services/usuario.service');
-
+const CacheMiddleware = require('./cacheMiddleware');
 class UsuarioController extends CommonController {
   constructor() {
-    super(new UsuarioService());
+    super();
+    this._service = new UsuarioService()
   }
 
   async authentication(req, res) {
     try {
-
+      //processe os dados do body
       var body = req.body;
-      var auth = body.auth;
+      //realiza a requisica no bd
+      let result = await this._service.login(body);
 
-      let result = await this._service.login(body, auth);
-      res.status(HttpStatusCode.OK).send(result);
+      super.sendSucess(res, result);
 
     } catch (err) {
-      if (err instanceof HttpException) {
-        Response.responseAPI.error(res, HttpStatusCode.UNPROCESSABLE_ENTITY, err.message);
-      }
-      else if (err instanceof AuthenticationException) {
-        Response.responseAPI.error(res, HttpStatusCode.UNAUTHORIZED, err.message);
-      }
-      else {
-        Response.responseAPI.error(res, HttpStatusCode.INTERNAL_SERVER_ERROR, err.message);
-      }
+      super.sendError(res, err);
     }
   }
+
+  async get(req, res) {
+
+    const cache = new CacheMiddleware();
+    cache.buildCache(req, 'usuarioid', 360);
+
+    await super.get(req, res, cache);
+  }
+
 }
 
 /**

@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ * Esqueleto da procedure
+ * 
+ * @author Filipe Campos
+ */
 module.exports = class StoredProcedure {
 
     /**

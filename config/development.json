@@ -6,11 +6,20 @@
     "HOST": "localhost",
     "DB": {
         "MSSQL": {
-            "HOST": "infosistemas.no-ip.info",
-            "PORT": 51581,
-            "USER": "sa", 
-            "PASSWORD": "Inf0@1116",
-            "DB": "Topaz"
+            "HOST": "localhost",
+            "DB": "test",
+            "PORT": "",
+            "USER": "user",
+            "PASSWORD": "user"
+        }
+    },
+    "DB_READ": {
+        "MSSQL": {
+            "HOST": "localhost",
+            "DB": "test",
+            "PORT": "",
+            "USER": "user",
+            "PASSWORD": "user"
         }
     }
 }
