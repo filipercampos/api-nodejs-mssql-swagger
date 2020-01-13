@@ -74,8 +74,6 @@ exports.readDirectory = async function(dir) {
     }) 
 }
 
-
-
 exports.writeFile = async function(base64Data, pathFile) {
     return new Promise ((resolve, reject) => {
         fs.writeFile(pathFile, base64Data, 'base64', (err, data) => {
@@ -88,4 +86,17 @@ exports.writeFile = async function(base64Data, pathFile) {
         });
     }) 
 }
-
+/**
+ * Verifica se o path é um arquivo
+ */
+exports.isFile = async (path) => {
+    if(!this.existsPath(path)){
+        throw `Diretório ${path} não existe`;
+    }
+    return new Promise((resolve, reject) => {
+        fs.stat(path, (err, stats) => {
+            if (err) reject(err);
+            resolve(stats.isFile());
+        });
+    });
+}
