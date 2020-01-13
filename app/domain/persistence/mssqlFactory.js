@@ -5,14 +5,14 @@ const mssqlDefaultConfig = require('../persistence/mssql.config');
  * Pool de conexão com o banco de dados SQL
  * @author Filipe Campos
  */
-module.exports = class MssqlFactory{
+module.exports = class MssqlFactory {
 
-    MssqlFactory(){
+    MssqlFactory() {
     }
 
-    connectPool(config){ 
+    connectPool(config) {
 
-        if(!config || config == null){
+        if (!config || config == null) {
             config = mssqlDefaultConfig;
         }
 

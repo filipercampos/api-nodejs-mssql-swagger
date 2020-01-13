@@ -1,7 +1,10 @@
 const config = require('config');
-
-'use strict';
-const MSSQL_CONN = {
+/**
+ * Configuração de banco de dados
+ * 
+ * @author Filipe Campos
+ */
+module.exports = MSSQL_CONN = {
     server: config.get('DB').MSSQL.HOST,
     port: config.get('DB').MSSQL.PORT,
     user: config.get('DB').MSSQL.USER,
@@ -18,4 +21,3 @@ const MSSQL_CONN = {
     }
 }
 
-module.exports = MSSQL_CONN;

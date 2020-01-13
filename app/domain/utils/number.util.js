@@ -1,3 +1,7 @@
+/**
+ * Utilitário de números
+ * @author Filipe Campos
+ */
 module.exports = {
     isInt: (n) => {
         return Number(n) === n && n % 1 === 0;

@@ -1,5 +1,9 @@
 'use strict';
-
+/**
+ * Constantes objectos do banco de dados
+ * 
+ * @author Filipe Campos
+ */
 module.exports.Contract = {
     //Autenticacao
     spAutenticacaoGet: 'sp_Autenticacao_GET',

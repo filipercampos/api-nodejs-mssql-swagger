@@ -12,8 +12,7 @@ const ProcedureException = require('../../api/exceptions/procedure.exception');
 const Auth = require('../../api/helpers/auth');
 const AuthenticationException = require('../../api/exceptions/authentication.exception');
 
-const anotherCfg = require('../persistence/mssqlRead.config');
-const Factory = require('../persistence/mssqlFactory');
+const anotherCfg = require('../persistence/mssql.config');
 
 module.exports = class UsuarioService extends CommonService {
 
@@ -36,7 +35,7 @@ module.exports = class UsuarioService extends CommonService {
 
     try {
 
-      let conn = await new Factory().connectPool(anotherCfg);
+      let conn = await this._factory.connectPool(anotherCfg);
 
       let result = await conn.request()
         .input('pUsuario', mssql.NVarChar(120), params.username)
@@ -77,7 +76,7 @@ module.exports = class UsuarioService extends CommonService {
 
       super.validatePagination(params);
 
-      let conn = await new Factory().connectPool();
+      let conn = await this._factory.connectPool();
 
       let result = await conn.request()
         .input('pUsuarioID', mssql.Int, this._toParamValue(params.id || params.usuarioId))

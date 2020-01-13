@@ -1,7 +1,7 @@
 'use strict';
 
 const mssql = require('mssql');
-const MssqlFactory = require('../persistence/mssql');
+const Factory = require('../persistence/mssqlFactory');
 const ProcedureException = require('../../api/exceptions/procedure.exception');
 const CommonProcedure = require('../persistence/common.procedure');
 const ConflictException = require('../../api/exceptions/conflict.exception');
@@ -22,10 +22,14 @@ module.exports = class CommonService {
         this._model = model;
         this._spGet = new CommonProcedure();
         this._spGet.initialize(spGetName, keyParam);
+        this._factory = new Factory();
     }
 
+    /**
+     * Cria um pool de conexão
+     */
     async openConnection() {
-        return await MssqlFactory;
+        return  await this._factory.connectPool();
     }
 
     /**
@@ -35,7 +39,7 @@ module.exports = class CommonService {
     async getById(id) {
 
         try {
-            let conn = await MssqlFactory;
+            let conn = await this._factory.connectPool();
             let result = await conn.request()
                 .input(this._spGet.key, mssql.Int, this._toParamValue(id))
                 .execute(this._spGet.name);
@@ -61,13 +65,13 @@ module.exports = class CommonService {
     }
 
     /**
-     * Get data from id
+     * Remove data from id
      * @param {PK from table} id 
      */
-    async remove(id) {
+    async deleteById(id) {
 
         try {
-            let conn = await MssqlFactory;
+            let conn =  await this._factory.connectPool();
             let result = await conn.request()
                 .input(this._spGet.key, mssql.Int, this._toParamValue(id))
                 .execute(this._spGet.name);
@@ -87,7 +91,7 @@ module.exports = class CommonService {
     async getAll() {
         let name = this._spGet.name;
         try {
-            let conn = await MssqlFactory;
+            let conn =  await this._factory.connectPool();
             let result = await conn.request()
                 .execute(name);
 
@@ -298,7 +302,6 @@ module.exports = class CommonService {
         return result;
     }
 
-
     /**
      * Validation parameter pagination
      * 
@@ -402,7 +405,7 @@ module.exports = class CommonService {
             if (err instanceof Exception) {
                 throw err;
             }
-            throw new Exception ({ sql: sql, error: err.message });
+            throw new Exception({ sql: sql, error: err.message });
         }
     }
     /**

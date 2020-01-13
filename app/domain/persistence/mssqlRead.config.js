@@ -1,6 +1,11 @@
 const config = require('config');
 
-const MSSQL_CONN_READONLY = {
+/**
+ * Configuração de banco de dados
+ * 
+ * @author Filipe Campos
+ */
+module.exports = MSSQL_CONN_READONLY = {
     server: config.get('DB_READ').MSSQL.HOST,
     port: config.get('DB_READ').MSSQL.PORT,
     user: config.get('DB_READ').MSSQL.USER,
@@ -16,6 +21,3 @@ const MSSQL_CONN_READONLY = {
         encrypt: false
     }
 }
-
-
-module.exports = MSSQL_CONN_READONLY;

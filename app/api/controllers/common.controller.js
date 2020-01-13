@@ -7,6 +7,7 @@ const ConflictException = require('../exceptions/conflict.exception');
 const ProcedureException = require('../exceptions/procedure.exception');
 const cache = require('memory-cache');
 let memCache = new cache.Cache();
+
 /**
  * Request service HTTP route
  * @author Filipe Campos
@@ -22,6 +23,7 @@ module.exports = class CommonController {
 
     /**
      * Envia um resposta sucesso
+     * 
      * @param {Response} res 
      * @param {Result} result 
      */
@@ -59,7 +61,10 @@ module.exports = class CommonController {
     }
 
     /**
-     * Envia um resposta e/ou coloca resposta em memória
+     * Envia um requisição get 
+     * 
+     * Aceita cache em memória
+     * 
      * @param {Request} req 
      * @param {Response} res 
      * @param {Result} result 
@@ -90,8 +95,8 @@ module.exports = class CommonController {
                     memCache.put(cache.key, result, cache.duration * 1000);
                 }
 
-                if (result.results.length == 0) {
-                    Response.responseAPI.success(res, null, HttpStatusCode.NO_CONTENT);
+                if (result.results && result.results.length == 0) {
+                    Response.responseAPI.success(res, null, HttpStatusCode.OK);
                 } else {
                     Response.responseAPI.success(res, result, HttpStatusCode.OK);
                 }
@@ -105,6 +110,12 @@ module.exports = class CommonController {
         }
     }
 
+    /**
+     * Envia uma requisição get
+     * 
+     * @param {Request} req 
+     * @param {Response} res 
+     */
     async getAll(req, res) {
         try {
             let result = await this._service.getAll();
@@ -121,6 +132,12 @@ module.exports = class CommonController {
         }
     }
 
+    /**
+     * Envia uma requisição get
+     * 
+     * @param {Request} req 
+     * @param {Response} res 
+     */
     async getById(req, res) {
         try {
             let id = req.swagger.params.id.value;
@@ -139,6 +156,12 @@ module.exports = class CommonController {
         }
     }
 
+    /**
+     * Envia uma requisição save
+     * 
+     * @param {Request} req 
+     * @param {Response} res 
+     */
     async post(req, res) {
         try {
             let result = await this._service.post(req.body);
@@ -157,6 +180,12 @@ module.exports = class CommonController {
         }
     }
 
+    /**
+     * Envia uma requisição update
+     * 
+     * @param {Request} req 
+     * @param {Response} res 
+     */
     async put(req, res) {
         try {
             let id = req.swagger.params.id.value;
@@ -173,6 +202,12 @@ module.exports = class CommonController {
         }
     }
 
+    /**
+     * Envia uma requisição update
+     * 
+     * @param {Request} req 
+     * @param {Response} res 
+     */
     async patch(req, res) {
         try {
             let id = req.swagger.params.id.value;
@@ -189,26 +224,16 @@ module.exports = class CommonController {
         }
     }
 
-    async remove(req, res) {
+    /**
+     * Envia uma requisição delete
+     * 
+     * @param {Request} req 
+     * @param {Response} res 
+     */
+    async deleteById(req, res) {
         try {
             let id = req.swagger.params.id.value;
-            let result = await this._service.remove(id);
-            Response.responseAPI.success(res, result, HttpStatusCode.OK);
-        }
-        catch (err) {
-            if (err instanceof ErroException) {
-                Response.responseAPI.error(res, HttpStatusCode.UNPROCESSABLE_ENTITY, err.message, true);
-            } else {
-                Response.responseAPI.error(res, HttpStatusCode.INTERNAL_SERVER_ERROR, err.message);
-            }
-        }
-    }
-
-    async delete(req, res) {
-        try {
-            let id = req.swagger.params.id.value;
-            let body = req.body;
-            let result = await this._service.delete(id, body);
+            let result = await this._service.deleteById(id);
             Response.responseAPI.success(res, result, HttpStatusCode.OK);
         }
         catch (err) {

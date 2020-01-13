@@ -30,7 +30,7 @@ class UsuarioController extends CommonController {
     const cache = new CacheMiddleware();
     cache.buildCache(req, 'usuarioid', 360);
 
-    await super.get(req, res, cache);
+    await super.get(req, res, null);
   }
 
 }

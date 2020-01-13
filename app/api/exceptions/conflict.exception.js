@@ -2,6 +2,10 @@ const DefaultErrorMessage = require("../../domain/utils/string.util");
 
 'use strict';
 
+/**
+ * Exceção
+ * @author Filipe Campos
+ */
 module.exports = class ConflictException {
     /** Construtor */
   constructor(message){ 

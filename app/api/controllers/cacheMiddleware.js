@@ -1,3 +1,8 @@
+/**
+ * Objeto para salvar requisição em memória (cache)
+ * 
+ * @author Filipe Campos
+ */
 module.exports = class CacheMiddleware {
 
     Cache() {

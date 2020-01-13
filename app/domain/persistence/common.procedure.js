@@ -1,3 +1,7 @@
+/**
+ * Interface padrão de procedure SQL
+ * @author Filipe Campos
+ */
 module.exports = class CommonProcedure {
 
     /**

@@ -86,10 +86,6 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/getUsuariosResponse'
-        "204":
-          description: nocontent
-          schema:
-            $ref: '#/definitions/noContentResponse'
         "403":
             description: Acesso Negado
             schema: 
@@ -350,11 +346,6 @@ definitions:
   #   enum: [ ..., ... ]
   
   # common #
-  noContentResponse:
-    type: object
-    properties:
-      data:
-        type: object
   errorResponse:
     type: object
     properties:
