@@ -1,16 +1,19 @@
 'use strict';
+const mssql = require('mssql');
+
 const CommonService = require('./common.service');
 const UsuarioModel = require('../models/usuario.model');
 
-const mssql = require('mssql');
-const MssqlFactory = require('../persistence/mssql');
 const { Contract } = require('../persistence/contract');
-const ErrorException = require('../../api/exceptions/exception');
+const Exception = require('../../api/exceptions/exception');
 const ProcedureException = require('../../api/exceptions/procedure.exception');
 
 //Authentication
 const Auth = require('../../api/helpers/auth');
 const AuthenticationException = require('../../api/exceptions/authentication.exception');
+
+const anotherCfg = require('../persistence/mssqlRead.config');
+const Factory = require('../persistence/mssqlFactory');
 
 module.exports = class UsuarioService extends CommonService {
 
@@ -33,9 +36,10 @@ module.exports = class UsuarioService extends CommonService {
 
     try {
 
-      let conn = await MssqlFactory;
+      let conn = await new Factory().connectPool(anotherCfg);
+
       let result = await conn.request()
-        .input('pEmail', mssql.NVarChar(120), params.username)
+        .input('pUsuario', mssql.NVarChar(120), params.username)
         .input('pSenha', mssql.NVarChar(32), params.password)
         .execute(Contract.spAutenticacaoGet);
 
@@ -43,19 +47,18 @@ module.exports = class UsuarioService extends CommonService {
         //result
         let data = result.recordset[0];
         //user data
-        let loginToken = UsuarioModel.dto(data);
+        let loginToken = UsuarioModel.model(data);
         //gera um token jwt a partir do dados do usuário
         let _auth = new Auth();
         const tokenValue = await _auth.sign(loginToken);
         return ({ token: tokenValue });
+
       } catch (error) {
         throw new AuthenticationException('Usuário ou senha incorreto(s)');
       }
 
     } catch (error) {
-
-      throw new ProcedureException(Contract.spAutenticacaoGet, err.message);
-
+      throw new ProcedureException(Contract.spAutenticacaoGet, error.message);
     }
   }
 
@@ -65,18 +68,19 @@ module.exports = class UsuarioService extends CommonService {
    * @param {Parâmetros da procedure} params 
    */
 
-  async find(params) {
+  async get(params) {
 
     try {
 
       //Table type use
       // let myTvp = this.createTableParameters(params.ids);
 
-      this.validatePagination(params);
+      super.validatePagination(params);
 
-      let conn = await MssqlFactory;
+      let conn = await new Factory().connectPool();
+
       let result = await conn.request()
-        .input('pUsuarioID', mssql.Int, this._toParamValue(params.id))
+        .input('pUsuarioID', mssql.Int, this._toParamValue(params.id || params.usuarioId))
         .input('pNome', mssql.VarChar(200), this._toParamValue(params.nome))
         .input('pCPF', mssql.VarChar(20), this._toParamValue(params.cpf))
         .input('pEmail', mssql.NVarChar(400), this._toParamValue(params.email))
@@ -97,7 +101,7 @@ module.exports = class UsuarioService extends CommonService {
    * 
    * @param {Parâmetros da procedures} params
    */
-  async save(params) {
+  async post(params) {
 
     try {
       let conn = await MssqlFactory;
@@ -106,11 +110,12 @@ module.exports = class UsuarioService extends CommonService {
         .input('pEmail', mssql.NVarChar(200), params.email)
         .input('pSenha', mssql.NVarChar(400), params.senha)
         .input('pUsuarioId', mssql.Int, params.usuarioId)
+        .execute(Contract.spUsuarioPost)
       return this.getRowsAffected(result);
     }
     catch (err) {
       if (err.class === 11) {
-        throw new ErrorException(err.message);
+        throw new Exception(err.message);
       } else {
         throw new ProcedureException(Contract.spUsuarioPost, err.message);
       }
@@ -133,11 +138,11 @@ module.exports = class UsuarioService extends CommonService {
         .input('pSenha', mssql.NVarChar(400), params.senha)
         .execute(Contract.spUsuarioPut);
 
-      return this.getRowsAffected(result);
+      return super.getRowsAffected(result);
     }
     catch (err) {
       if (err.class === 11) {
-        throw new ErrorException(err.message);
+        throw new Exception(err.message);
       } else {
         throw new ProcedureException(Contract.spUsuarioPut, err.message);
       }
@@ -164,7 +169,7 @@ module.exports = class UsuarioService extends CommonService {
     }
     catch (err) {
       if (err.class === 11) {
-        throw new ErrorException(err.message);
+        throw new Exception(err.message);
       } else {
         throw new ProcedureException(Contract.spUsuarioPatch, err.message);
       }

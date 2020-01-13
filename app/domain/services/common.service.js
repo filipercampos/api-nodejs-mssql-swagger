@@ -5,10 +5,11 @@ const MssqlFactory = require('../persistence/mssql');
 const ProcedureException = require('../../api/exceptions/procedure.exception');
 const CommonProcedure = require('../persistence/common.procedure');
 const ConflictException = require('../../api/exceptions/conflict.exception');
+const Exception = require('../../api/exceptions/exception');
 const _ = require('lodash');
 
 /**
- * Business Layer 
+ * Service Layer 
  * 
  * Direct communication with repository layer
  * 
@@ -31,7 +32,7 @@ module.exports = class CommonService {
      * Get data from id
      * @param {PK from table} id 
      */
-    async findById(id) {
+    async getById(id) {
 
         try {
             let conn = await MssqlFactory;
@@ -45,7 +46,7 @@ module.exports = class CommonService {
 
             if (record != null) {
                 if (this._model != null) {
-                    return this._model.dto(record);
+                    return this._model.model(record);
                 }
                 else {
                     return record;
@@ -83,7 +84,7 @@ module.exports = class CommonService {
     /**
      * Get all data
      */
-    async findAll() {
+    async getAll() {
         let name = this._spGet.name;
         try {
             let conn = await MssqlFactory;
@@ -96,7 +97,7 @@ module.exports = class CommonService {
 
             if (this._model != null) {
                 resultsResponse = results.map(item => {
-                    return this._model.dto(item)
+                    return this._model.model(item)
                 });
             }
             else {
@@ -123,7 +124,7 @@ module.exports = class CommonService {
 
         if (this._model != null) {
             resultsResponse = results.map(item => {
-                return this._model.dto(item)
+                return this._model.model(item)
             });
         }
         else {
@@ -280,7 +281,7 @@ module.exports = class CommonService {
     getResultPaginationProcedure(records, index, rowsCount) {
 
         let resultsResponse = records.map(item => {
-            return this._model.dto(item)
+            return this._model.model(item)
         });
         let totalPages = records.length > 0 ? records[0].TotalPagina : null;
         let totalRows = null;
@@ -348,5 +349,71 @@ module.exports = class CommonService {
         } else {
             return o.value;
         }
+    }
+
+    /**
+     * Executa uma instrução SQL
+     * 
+     * @param {Instrução sql} sql 
+     */
+    async query(conn, sql) {
+
+        try {
+            //parse lower
+            let sqlBroken = sql.toLowerCase().split(' ');
+            //count froms
+            let froms = 0;
+            //count join
+            let joins = 0;
+            //count with nolock
+            let nolocks = 0;
+
+            for (let i = 0; i < sqlBroken.length; i++) {
+
+                let line = sqlBroken[i].trim();
+
+                if (line !== '') {
+
+                    if (line === 'from') {
+                        froms++;
+                    }
+                    else if (line === 'inner') {
+                        joins++;
+                    }
+                    else if (line.includes('nolock')) {
+                        nolocks++;
+                    }
+                }
+            }
+
+            if ((froms + joins) > nolocks) {
+                throw new Exception(
+                    {
+                        error: 'Tentativa de execução de uma instrução sql sem WITH(NOLOCK)',
+                        sql: sql
+                    }
+                );
+            }
+            let result = await conn.request().query(sql);
+            return result.recordset;
+        }
+        catch (err) {
+
+            if (err instanceof Exception) {
+                throw err;
+            }
+            throw new Exception ({ sql: sql, error: err.message });
+        }
+    }
+    /**
+     * Drop table from database
+     * @param {Connection} conn 
+     * @param {Nome da tabela} tableName 
+     */
+    async dropTable(conn, tableName) {
+        await conn.request().batch(
+            `IF OBJECT_ID('tempdb..${tableName}') IS NOT NULL 
+                DROP TABLE ${tableName}
+            `);
     }
 }
