@@ -192,7 +192,25 @@ paths:
           description: Acesso Negado
           schema:
             $ref: '#/definitions/errorResponse'
-
+    delete:
+      tags:
+        - "Remove um usuário pelo id"
+      summary: "Remove um usuário pelo id"
+      operationId: "deleteUsuarioById"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        200:
+          description: "success"
+        403:
+          description: "Access Denied"
+          schema:
+            $ref: "#/definitions/errorResponse"
+            
 # Definitions #       
 definitions:
 

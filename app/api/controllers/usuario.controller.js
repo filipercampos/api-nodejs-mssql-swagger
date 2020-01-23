@@ -5,6 +5,7 @@ const HttpStatusCode = require('../helpers/httpStatusCode');
 const CommonController = require('./common.controller');
 const UsuarioService = require('../../domain/services/usuario.service');
 const CacheMiddleware = require('./cacheMiddleware');
+
 class UsuarioController extends CommonController {
   constructor() {
     super();
@@ -66,4 +67,9 @@ module.exports.putUsuario = function (req, res) {
 module.exports.patchUsuario = function (req, res) {
   const controller = new UsuarioController();
   controller.patch(req, res);
+}
+
+module.exports.deleteUsuarioById = function (req, res) {
+  const controller = new UsuarioController();
+  controller.deleteById(req, res);
 }

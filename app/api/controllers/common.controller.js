@@ -17,8 +17,6 @@ module.exports = class CommonController {
     constructor(service) {
         //initialize service object
         this._service = service;
-        this._response = Response;
-        this._httpStatusCode = HttpStatusCode;
     }
 
     /**

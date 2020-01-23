@@ -345,7 +345,7 @@ module.exports = class CommonService {
             return null;
         }
         else if (_.isNil(o.value)) {
-            if (!_.isNil()) {
+            if (!_.isNil(o)) {
                 return o;
             }
             return null;

@@ -79,7 +79,6 @@ module.exports = class UsuarioService extends CommonService {
       let conn = await this._factory.connectPool();
 
       let result = await conn.request()
-        .input('pUsuarioID', mssql.Int, this._toParamValue(params.id || params.usuarioId))
         .input('pNome', mssql.VarChar(200), this._toParamValue(params.nome))
         .input('pCPF', mssql.VarChar(20), this._toParamValue(params.cpf))
         .input('pEmail', mssql.NVarChar(400), this._toParamValue(params.email))
@@ -103,7 +102,7 @@ module.exports = class UsuarioService extends CommonService {
   async post(params) {
 
     try {
-      let conn = await MssqlFactory;
+      let conn = await this._factory.connectPool();
       let result = await conn.request()
         .input('pNome', mssql.VarChar(100), params.nome)
         .input('pEmail', mssql.NVarChar(200), params.email)
@@ -129,14 +128,13 @@ module.exports = class UsuarioService extends CommonService {
   async update(id, params) {
 
     try {
-      let conn = await MssqlFactory;
+      let conn = await this._factory.connectPool();
       let result = await conn.request()
         .input('pUsuarioID', mssql.Int, id)
         .input('pNome', mssql.VarChar(200), params.nome)
         .input('pEmail', mssql.NVarChar(200), params.email)
         .input('pSenha', mssql.NVarChar(400), params.senha)
         .execute(Contract.spUsuarioPut);
-
       return super.getRowsAffected(result);
     }
     catch (err) {
@@ -156,14 +154,12 @@ module.exports = class UsuarioService extends CommonService {
   async patch(id, params) {
 
     try {
-      let conn = await MssqlFactory;
+      let conn = await this._factory.connectPool();
       let result = await conn.request()
-
         .input('pUsuarioID', mssql.Int, id)
         .input('pSenhaAtual', mssql.NVarChar(400), params.senhaAtual)
         .input('pNovaSenha', mssql.NVarChar(400), params.novaSenha)
         .execute(Contract.spUsuarioPatch);
-
       return this.getRowsAffected(result);
     }
     catch (err) {
