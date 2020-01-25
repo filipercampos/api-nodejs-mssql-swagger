@@ -6,20 +6,20 @@
     "HOST": "localhost",
     "DB": {
         "MSSQL": {
-            "HOST": "infosistemas.no-ip.info",
-            "PORT": 51581,
-            "USER": "sa",
-            "PASSWORD": "Inf0@1116",
-            "DB": "PontoEletronico"
+            "HOST": "HOST",
+            "PORT": 0,
+            "USER": "user", 
+            "PASSWORD": "password",
+            "DB": "database"
         }
     },
-    "DB_READ": {
+    "DB2": {
         "MSSQL": {
-            "HOST": "192.168.50.140",
-            "PORT": "",
-            "USER": "loca",
-            "PASSWORD": "loca321",
-            "DB": "QAS_PortalCliente"
+            "HOST": "HOST",
+            "PORT": 0,
+            "USER": "user", 
+            "PASSWORD": "password",
+            "DB": "database"
         }
     }
 }
