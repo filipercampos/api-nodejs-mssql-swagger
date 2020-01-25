@@ -6,11 +6,11 @@ const config = require('config');
  * @author Filipe Campos
  */
 module.exports = MSSQL_CONN_READONLY = {
-    server: config.get('DB_READ').MSSQL.HOST,
-    port: config.get('DB_READ').MSSQL.PORT,
-    user: config.get('DB_READ').MSSQL.USER,
-    password: config.get('DB_READ').MSSQL.PASSWORD,
-    database: config.get('DB_READ').MSSQL.DB, 
+    server: config.get('DB2').MSSQL.HOST,
+    port: config.get('DB2').MSSQL.PORT,
+    user: config.get('DB2').MSSQL.USER,
+    password: config.get('DB2').MSSQL.PASSWORD,
+    database: config.get('DB2').MSSQL.DB, 
     connectionTimeout: 30000,
     pool: {
         max: 50,
