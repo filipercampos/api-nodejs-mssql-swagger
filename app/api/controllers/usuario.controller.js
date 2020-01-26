@@ -61,7 +61,7 @@ module.exports.postUsuario = function (req, res) {
 
 module.exports.putUsuario = function (req, res) {
   const controller = new UsuarioController();
-  controller.update(req, res);
+  controller.put(req, res);
 }
 
 module.exports.patchUsuario = function (req, res) {

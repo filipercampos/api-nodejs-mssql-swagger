@@ -125,7 +125,7 @@ module.exports = class UsuarioService extends CommonService {
   * 
   * @param {Parâmetros da procedures} params 
   */
-  async update(id, params) {
+  async put(id, params) {
 
     try {
       let conn = await this._factory.connectPool();
