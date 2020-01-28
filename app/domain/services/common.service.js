@@ -308,8 +308,18 @@ module.exports = class CommonService {
      * @param {Pagination parameters } params 
      */
     validatePagination(params) {
-        params.numeroPagina = _.isNil(params.numeroPagina.value) ? null : params.numeroPagina.value;
-        params.linhasPagina = _.isNil(params.linhasPagina.value) ? null : params.linhasPagina.value;
+
+        if (params.numeroPagina) {
+            params.numeroPagina = _.isNil(params.numeroPagina.value) ? null : params.numeroPagina.value;
+        } else {
+            params.numeroPagina = null;
+        }
+
+        if (params.linhasPagina) {
+            params.linhasPagina = _.isNil(params.linhasPagina.value) ? null : params.linhasPagina.value;
+        } else {
+            params.linhasPagina = null;
+        }
     }
 
     /**

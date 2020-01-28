@@ -14,14 +14,15 @@ class UsuarioController extends CommonController {
 
   async authentication(req, res) {
     try {
-      //processe os dados do body
+      //data from body
       var body = req.body;
-      //realiza a requisica no bd
+      //call method
       let result = await this._service.login(body);
-
-      super.sendSucess(res, result);
+      //send success result
+      super.sendSuccess(res, result);
 
     } catch (err) {
+      //send error
       super.sendError(res, err);
     }
   }

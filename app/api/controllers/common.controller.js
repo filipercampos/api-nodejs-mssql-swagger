@@ -25,7 +25,7 @@ module.exports = class CommonController {
      * @param {Response} res 
      * @param {Result} result 
      */
-    async sendSucess(res, result) {
+    async sendSuccess(res, result) {
         try {
             res.status(HttpStatusCode.OK).send(result);
         } catch (err) {
