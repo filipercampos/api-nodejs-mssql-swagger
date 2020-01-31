@@ -29,7 +29,7 @@ module.exports = class CommonService {
      * Cria um pool de conexão
      */
     async openConnection() {
-        return  await this._factory.connectPool();
+        return await this._factory.connectPool();
     }
 
     /**
@@ -45,8 +45,8 @@ module.exports = class CommonService {
                 .execute(this._spGet.name);
 
             let record = result != null && _.isArray(result.recordset)
-                ? result.recordset[0]
-                : null;
+                                ? result.recordset[0]
+                                : null;
 
             if (record != null) {
                 if (this._model != null) {
@@ -71,7 +71,7 @@ module.exports = class CommonService {
     async deleteById(id) {
 
         try {
-            let conn =  await this._factory.connectPool();
+            let conn = await this._factory.connectPool();
             let result = await conn.request()
                 .input(this._spGet.key, mssql.Int, this._toParamValue(id))
                 .execute(this._spGet.name);
@@ -91,7 +91,7 @@ module.exports = class CommonService {
     async getAll() {
         let name = this._spGet.name;
         try {
-            let conn =  await this._factory.connectPool();
+            let conn = await this._factory.connectPool();
             let result = await conn.request()
                 .execute(name);
 
@@ -99,7 +99,7 @@ module.exports = class CommonService {
 
             let resultsResponse = null;
 
-            if (this._model != null) {
+            if (!_.isNil(this._model)) {
                 resultsResponse = results.map(item => {
                     return this._model.model(item)
                 });
@@ -121,12 +121,13 @@ module.exports = class CommonService {
 
     /**
      * Response for recordset
+     * 
      * @param {Recordset} Data
      */
     async findResponse(results, pageIndex, rowsPerPage) {
         let resultsResponse = null;
 
-        if (this._model != null) {
+        if (!_.isNil(this._model)) {
             resultsResponse = results.map(item => {
                 return this._model.model(item)
             });
@@ -145,12 +146,13 @@ module.exports = class CommonService {
 
     /**
      * Response for Save      
-     * @param {body} payload 
+     * @param {body} result 
      */
     async responseSave(result) {
 
-        if (!result)
-            throw new ConflictException(`Ocorreu um erro ao salvar os dados`)
+        if (_.isNil(result)) {
+            throw new ConflictException(`Ocorreu um erro ao salvar os dados`);
+        }
         let response = {
             id: parseInt(result),
             message: Boolean(result) ? `Dados salvos com sucesso` : 'Falha ao atualizar os dados'
@@ -160,65 +162,32 @@ module.exports = class CommonService {
 
     /**
      * Response for Update
-     * @param {PK da tabela} id 
-     * @param {Procedure params} payload 
+     * @param {PK da tabela ou linhas afetadas} result 
      */
     async responseUpdate(result) {
 
-        if (!result)
-            throw new ConflictException(`Ocorreu um erro ao atualizar os dados`)
-
-        let response = {
-            rowsAffected: parseInt(result),
-            message: Boolean(result) ? `Dados atualizados com sucesso` : 'Falha ao atualizar os dados'
+        if (_.isNil(result)) {
+            throw new ConflictException(`Ocorreu um erro ao atualizar os dados`);
         }
-        return response;
-    }
-
-    /**
-     * Response for Update
-     */
-    async responsePatch(result) {
-
-        if (!result)
-            throw new ConflictException(`Ocorreu um erro ao atualizar os dados`)
-
         let response = {
             rowsAffected: parseInt(result),
-            message: Boolean(result) ? `Dados atualizados com sucesso` : 'Falha ao atualizar os dados'
+            message: result != 0 ? `Dados atualizados com sucesso` : 'Falha ao atualizar os dados'
         }
         return response;
     }
 
     /**
      * Response for Remove
-     * @param {PK da tabela} id 
-     */
-    async responseRemove(result) {
-
-        if (!result)
-            throw new ConflictException(`Ocorreu um erro ao remover o registro`)
-
-        let response = {
-            rowsAffected: parseInt(result),
-            message: Boolean(result) ? `Registro(s) removido(s) com sucesso` : 'Erro ao remover'
-        }
-        return response;
-    }
-
-    /**
-     * Response for Delete 
-     * @param {PK da tabela} id 
-     * @param {Parametros da procedure} payload 
+     * @param {PK da tabela} result 
      */
     async responseDelete(result) {
 
-        if (!result)
-            throw new ConflictException(`Ocorreu um erro ao remover o registro`)
-
+        if (_.isNil(result)) {
+            throw new ConflictException(`Ocorreu um erro ao remover o registro`);
+        }
         let response = {
             rowsAffected: parseInt(result),
-            message: Boolean(result) ? `Registro(s) removido(s) com sucesso` : 'Erro ao remover'
+            message: result != 0 ? `Registro(s) removido(s) com sucesso` : 'Erro ao remover'
         }
         return response;
     }
@@ -228,23 +197,30 @@ module.exports = class CommonService {
      * @param {Recordset} result 
      */
     getRowsAffected(result) {
+        //linhas afetadas
+        let rowsAffected = 0;
+
         try {
             if (_.isNil(result)) {
                 throw new ProcedureException('Procedure execute fail. Result is undefined');
             }
-
-            if (result.recordset.length === 0
+            //rowsAffected
+            else if (_.isArray(result.rowsAffected)) {
+                rowsAffected = result.rowsAffected.length;
+            }
+            else if (result.recordset.length === 0
                 || result.recordset[0] === ''
                 || result.recordset[0] === null) {
                 throw new ProcedureException('Execução com sucesso, mas sem nenhuma linha afetada');
+            } else {
+                //id da linha afetada
+                rowsAffected = parseInt(result.recordset[0][""].toString());
             }
-
-            //id da linha afetada
-            return result.recordset[0][""].toString();
         } catch (error) {
             //linha afetada
-            return result.recordsets.length;
+            rowsAffected = result.recordsets.length;
         }
+        return this.responseUpdate(rowsAffected);
     }
 
     /**
@@ -351,7 +327,7 @@ module.exports = class CommonService {
      */
     _toParamValue(o) {
 
-        if (_.isNil(o)) {
+        if (_.isNil(o) || o === "null" || o.value === "null") {
             return null;
         }
         else if (_.isNil(o.value)) {
