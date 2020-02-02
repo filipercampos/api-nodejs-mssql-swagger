@@ -109,7 +109,7 @@ module.exports = class UsuarioService extends CommonService {
         .input('pSenha', mssql.NVarChar(400), params.senha)
         .input('pUsuarioId', mssql.Int, params.usuarioId)
         .execute(Contract.spUsuarioPost)
-      return this.getRowsAffected(result);
+      return this.responseSave(result);
     }
     catch (err) {
       if (err.class === 11) {
@@ -135,7 +135,7 @@ module.exports = class UsuarioService extends CommonService {
         .input('pEmail', mssql.NVarChar(200), params.email)
         .input('pSenha', mssql.NVarChar(400), params.senha)
         .execute(Contract.spUsuarioPut);
-      return super.getRowsAffected(result);
+      return super.responseUpdate(result);
     }
     catch (err) {
       if (err.class === 11) {
@@ -160,7 +160,7 @@ module.exports = class UsuarioService extends CommonService {
         .input('pSenhaAtual', mssql.NVarChar(400), params.senhaAtual)
         .input('pNovaSenha', mssql.NVarChar(400), params.novaSenha)
         .execute(Contract.spUsuarioPatch);
-      return this.getRowsAffected(result);
+      return this.responseUpdate(result);
     }
     catch (err) {
       if (err.class === 11) {

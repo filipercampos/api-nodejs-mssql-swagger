@@ -45,8 +45,8 @@ module.exports = class CommonService {
                 .execute(this._spGet.name);
 
             let record = result != null && _.isArray(result.recordset)
-                                ? result.recordset[0]
-                                : null;
+                ? result.recordset[0]
+                : null;
 
             if (record != null) {
                 if (this._model != null) {
@@ -76,9 +76,7 @@ module.exports = class CommonService {
                 .input(this._spGet.key, mssql.Int, this._toParamValue(id))
                 .execute(this._spGet.name);
 
-            var r = this.getRowsAffected(result);
-
-            return this.responseRemove(r);
+            return this.responseDelete(result);
 
         } catch (err) {
             throw new ProcedureException(this._spGet.name, err.message);
@@ -99,7 +97,7 @@ module.exports = class CommonService {
 
             let resultsResponse = null;
 
-            if (!_.isNil(this._model)) {
+            if (this._model != null) {
                 resultsResponse = results.map(item => {
                     return this._model.model(item)
                 });
@@ -121,13 +119,12 @@ module.exports = class CommonService {
 
     /**
      * Response for recordset
-     * 
      * @param {Recordset} Data
      */
     async findResponse(results, pageIndex, rowsPerPage) {
         let resultsResponse = null;
 
-        if (!_.isNil(this._model)) {
+        if (this._model != null) {
             resultsResponse = results.map(item => {
                 return this._model.model(item)
             });
@@ -146,81 +143,94 @@ module.exports = class CommonService {
 
     /**
      * Response for Save      
-     * @param {body} result 
+     * @param {body} payload 
      */
     async responseSave(result) {
 
+        let pk = null;
+        let message = 'Salvo com sucesso';
+
         if (_.isNil(result)) {
-            throw new ConflictException(`Ocorreu um erro ao salvar os dados`);
+            message = 'responseSave is null or undefined';
         }
+
+        else if (_.isArray(result.recordset)) {
+
+            pk = parseInt(result.recordset[0][""].toString());
+        }
+
+        else if (!_.isNil(result.output.pID)) {
+
+            pk = result.output.pID;
+        }
+
+        else {
+            pk = null;
+        }
+
         let response = {
-            id: parseInt(result),
-            message: Boolean(result) ? `Dados salvos com sucesso` : 'Falha ao atualizar os dados'
+            id: pk,
+            message: message
         }
         return response;
     }
 
     /**
-     * Response for Update
-     * @param {PK da tabela ou linhas afetadas} result 
+     * Response for PUT ou PATCH
+     * @param {Result procedure} result 
      */
     async responseUpdate(result) {
 
-        if (_.isNil(result)) {
-            throw new ConflictException(`Ocorreu um erro ao atualizar os dados`);
+        let message = 'Atualizado com sucesso';
+        let rowsAffected = this._getRowsAffected(result);
+        if (_.isNil(result) || rowsAffected == 0) {
+            message = 'Sucesso, mas nenhuma linha afetada';
         }
         let response = {
-            rowsAffected: parseInt(result),
-            message: result != 0 ? `Dados atualizados com sucesso` : 'Falha ao atualizar os dados'
+            rowsAffected: rowsAffected,
+            message: message
         }
         return response;
     }
 
     /**
-     * Response for Remove
-     * @param {PK da tabela} result 
+     * Response for DELETE 
+     * @param {Result procedure} result 
      */
     async responseDelete(result) {
 
-        if (_.isNil(result)) {
-            throw new ConflictException(`Ocorreu um erro ao remover o registro`);
+        let message = 'Removido com sucesso';
+        let rowsAffected = this._getRowsAffected(result);
+        if (_.isNil(result) || rowsAffected == 0) {
+            message = 'Sucesso, mas nenhuma linha afetada';
         }
         let response = {
-            rowsAffected: parseInt(result),
-            message: result != 0 ? `Registro(s) removido(s) com sucesso` : 'Erro ao remover'
+            rowsAffected: rowsAffected,
+            message: message
         }
+
         return response;
     }
 
-    /**
-     * Rows affected from tables
-     * @param {Recordset} result 
-     */
-    getRowsAffected(result) {
-        //linhas afetadas
-        let rowsAffected = 0;
-
-        try {
-            if (_.isNil(result)) {
-                throw new ProcedureException('Procedure execute fail. Result is undefined');
+    _getRowsAffected(result){
+        let rowsAffected = null;
+      
+        if (_.isArray(result.rowsAffected)) {
+            if (result.rowsAffected.length == 0) {
+                rowsAffected = parseInt(result.rowsAffected[0].toString());
             }
-            //rowsAffected
-            else if (_.isArray(result.rowsAffected)) {
-                rowsAffected = result.rowsAffected.length;
+            else {
+                rowsAffected = 0;
+                //conte as linhas afetadas
+                result.rowsAffected.map(rowCount => {
+                    rowsAffected += rowCount;
+                });
             }
-            else if (result.recordset.length === 0
-                || result.recordset[0] === ''
-                || result.recordset[0] === null) {
-                throw new ProcedureException('Execução com sucesso, mas sem nenhuma linha afetada');
-            } else {
-                //id da linha afetada
-                rowsAffected = parseInt(result.recordset[0][""].toString());
-            }
-        } catch (error) {
-            //linha afetada
-            rowsAffected = result.recordsets.length;
         }
-        return this.responseUpdate(rowsAffected);
+        else if (_.isArray(result.recordset)) {
+            rowsAffected = parseInt(result.recordset[0][""].toString());
+        }
+        return rowsAffected;
     }
 
     /**
