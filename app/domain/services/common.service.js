@@ -320,22 +320,24 @@ module.exports = class CommonService {
     }
 
     /**
-     * Get simple value from objet or .value
-     * Check object is null or undefined
-
-     * @param {Object to be verified} o 
-     */
+    * Get simple value from objet or .value
+    * Check object is null or undefined
+    * @param {Object to be verified} o 
+    */
     _toParamValue(o) {
 
-        if (_.isNil(o) || o === "null" || o.value === "null") {
+        if (_.isNil(o)) {
             return null;
         }
+        //variables body
+        else if (_.isNil(o.path)) {
+            return o;
+        }
         else if (_.isNil(o.value)) {
-            if (!_.isNil(o)) {
-                return o;
-            }
             return null;
-        } else {
+        }
+        //variables get
+        else {
             return o.value;
         }
     }
