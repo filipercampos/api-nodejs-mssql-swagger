@@ -27,7 +27,7 @@ module.exports = class CommonController {
      */
     async sendSuccess(res, result) {
         try {
-            res.status(HttpStatusCode.OK).send(result);
+            Response.responseAPI.success(res, result, HttpStatusCode.OK);
         } catch (err) {
             if (err instanceof HttpException) {
                 Response.responseAPI.error(res, HttpStatusCode.UNPROCESSABLE_ENTITY, err.message);
@@ -188,7 +188,7 @@ module.exports = class CommonController {
         try {
             let id = req.swagger.params.id.value;
             let body = req.body;
-            let result = await this._service.update(id, body);
+            let result = await this._service.put(id, body);
             Response.responseAPI.success(res, result, HttpStatusCode.OK);
         }
         catch (err) {

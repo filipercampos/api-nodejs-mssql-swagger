@@ -121,7 +121,7 @@ module.exports = class CommonService {
      * Response for recordset
      * @param {Recordset} Data
      */
-    async findResponse(results, pageIndex, rowsPerPage) {
+    findResponse(results, pageIndex, rowsPerPage) {
         let resultsResponse = null;
 
         if (this._model != null) {
@@ -131,6 +131,40 @@ module.exports = class CommonService {
         }
         else {
             resultsResponse = results;
+        }
+
+        if (_.isUndefined(pageIndex) || _.isUndefined(rowsPerPage)) {
+            return {
+                results: resultsResponse
+            };
+        }
+        return this.getResponsePagination(
+            results,
+            resultsResponse,
+            pageIndex,
+            rowsPerPage
+        );
+    }
+
+
+    /**
+     * Response for recordset
+     * @param {Recordset} Data
+     */
+    customResponse(results, model, pageIndex, rowsPerPage) {
+        let resultsResponse = null;
+
+        if (model != null) {
+            resultsResponse = results.map(item => {
+                return model.model(item)
+            });
+        }
+        else {
+            resultsResponse = results;
+        }
+
+        if (_.isUndefined(pageIndex) || _.isUndefined(rowsPerPage)) {
+            return resultsResponse;
         }
 
         return this.getResponsePagination(
@@ -145,7 +179,7 @@ module.exports = class CommonService {
      * Response for Save      
      * @param {body} payload 
      */
-    async responseSave(result) {
+    responseSave(result) {
 
         let pk = null;
         let message = 'Salvo com sucesso';
@@ -179,7 +213,7 @@ module.exports = class CommonService {
      * Response for PUT ou PATCH
      * @param {Result procedure} result 
      */
-    async responseUpdate(result) {
+    responseUpdate(result) {
 
         let message = 'Atualizado com sucesso';
         let rowsAffected = this._getRowsAffected(result);
@@ -197,7 +231,7 @@ module.exports = class CommonService {
      * Response for DELETE 
      * @param {Result procedure} result 
      */
-    async responseDelete(result) {
+    responseDelete(result) {
 
         let message = 'Removido com sucesso';
         let rowsAffected = this._getRowsAffected(result);
@@ -212,9 +246,9 @@ module.exports = class CommonService {
         return response;
     }
 
-    _getRowsAffected(result){
+    _getRowsAffected(result) {
         let rowsAffected = null;
-      
+
         if (_.isArray(result.rowsAffected)) {
             if (result.rowsAffected.length == 0) {
                 rowsAffected = parseInt(result.rowsAffected[0].toString());
