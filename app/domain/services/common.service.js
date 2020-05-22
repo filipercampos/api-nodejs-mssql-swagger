@@ -249,8 +249,9 @@ module.exports = class CommonService {
     _getRowsAffected(result) {
         let rowsAffected = null;
 
-        if (_.isArray(result.rowsAffected)) {
-            if (result.rowsAffected.length == 0) {
+        if (_.isArray(result.rowsAffected) && (_.isArray(result.recordset) && result.recordset.length == 0)) {
+
+            if (result.rowsAffected.length == 1) {
                 rowsAffected = parseInt(result.rowsAffected[0].toString());
             }
             else {
@@ -261,7 +262,7 @@ module.exports = class CommonService {
                 });
             }
         }
-        else if (_.isArray(result.recordset)) {
+        else if (_.isArray(result.recordset) && result.recordset.length > 0) {
             rowsAffected = parseInt(result.recordset[0][""].toString());
         }
         return rowsAffected;
