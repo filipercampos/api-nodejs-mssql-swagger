@@ -28,6 +28,8 @@
     "swagger-tools": "^0.10.4",
     "swagger-ui-express": "^4.0.2",
     "typescript": "^3.6.4",
-    "yamljs": "^0.3.0"
+    "yamljs": "^0.3.0",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
   }
 }

@@ -6,6 +6,9 @@ const ProcedureException = require('../../api/exceptions/procedure.exception');
 const CommonProcedure = require('../persistence/common.procedure');
 const ConflictException = require('../../api/exceptions/conflict.exception');
 const Exception = require('../../api/exceptions/exception');
+const fs = require('fs');
+const path = require('path');
+
 const _ = require('lodash');
 
 /**
@@ -386,13 +389,17 @@ module.exports = class CommonService {
             return o.value;
         }
     }
-
+    
     /**
      * Executa uma instrução SQL
      * 
-     * @param {Instrução sql} sql 
+     * @param { sql } sql Instrução SQL  
+     * @param { conn } conn Conexão especifica  
      */
-    async query(conn, sql) {
+    async query(sql, conn) {
+        if (!conn) {
+           conn = await this._factory.connectPool();
+        }
 
         try {
             //parse lower
@@ -447,9 +454,36 @@ module.exports = class CommonService {
      * @param {Nome da tabela} tableName 
      */
     async dropTable(conn, tableName) {
-        await conn.request().batch(
-            `IF OBJECT_ID('tempdb..${tableName}') IS NOT NULL 
-                DROP TABLE ${tableName}
-            `);
+        try {
+
+            const batchSql = `IF OBJECT_ID('tempdb..${tableName}') IS NOT NULL 
+                            DROP TABLE ${tableName}
+                          `;
+            await conn.request().batch(batchSql);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    /**
+     * Leitura de arquivos .sql
+     * ```
+     * '../db/sqls/file.sql';
+     * ```
+     * Use 
+     * @param {Path do arquivo} pathSql 
+     */
+    getSqlText(pathSql) {
+        try {
+
+            const sqlText = fs.readFileSync(path.join(__dirname, pathSql),
+                { encoding: 'utf8' }
+            );
+            return sqlText;
+
+        } catch (err) {
+
+            throw new Error(`atendimentosClientesRepository._getSqlText => Error na leitura do sql ${pathSql}`);
+        }
     }
 }
