@@ -16,7 +16,19 @@ module.exports = {
             return null;
         }
     },
-
+    getDateSeconds: (seconds) => {
+        try {
+            if (_.isNil(data)) {
+                return null;
+            }
+            let data = new Date();
+            data = data.setSeconds(seconds);
+            const secondsResut = Math.floor(seconds / 1000);
+            return secondsResut;
+        } catch (err) {
+            return null;
+        }
+    },
     getDate: (timestamp) => {
         try {
             if (_.isNil(timestamp)) {

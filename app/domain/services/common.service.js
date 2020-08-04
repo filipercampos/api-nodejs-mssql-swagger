@@ -386,6 +386,9 @@ module.exports = class CommonService {
         }
         //variables get
         else {
+            if(o.value == 'null'){
+                return null;
+            }
             return o.value;
         }
     }
